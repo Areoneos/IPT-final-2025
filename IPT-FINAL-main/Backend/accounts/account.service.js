@@ -15,6 +15,7 @@ module.exports = {
   revokeToken,
   register,
   verifyEmail,
+  manuallyVerifyAccount,
   forgotPassword,
   validateResetToken,
   resetPassword,
@@ -28,8 +29,16 @@ module.exports = {
 async function authenticate({ email, password, ipAddress }) {
   const account = await db.Account.scope('withHash').findOne({ where: { email } });
 
-  if (!account || !account.isVerified || !(await bcrypt.compare(password, account.passwordHash))) {
-    throw 'Email or password is incorrect';
+  if (!account) {
+    throw 'Email not found';
+  }
+
+  if (!account.isVerified) {
+    throw 'Account is not verified. Please check your email for verification instructions.';
+  }
+
+  if (!(await bcrypt.compare(password, account.passwordHash))) {
+    throw 'Password is incorrect';
   }
 
   const jwtToken = generateJwtToken(account);
@@ -111,8 +120,21 @@ async function verifyEmail({ token }) {
   const account = await db.Account.findOne({ where: { verificationToken: token } });
   if (!account) throw 'Verification failed, token is invalid or expired';
   account.verified = Date.now();
+  account.isVerified = true;
   account.verificationToken = null;
   await account.save();
+}
+
+async function manuallyVerifyAccount(email) {
+  const account = await db.Account.findOne({ where: { email } });
+  if (!account) throw 'Account not found';
+  
+  account.verified = Date.now();
+  account.isVerified = true;
+  account.verificationToken = null;
+  await account.save();
+  
+  return basicDetails(account);
 }
 
 async function forgotPassword({ email }, origin) {
@@ -184,17 +206,30 @@ async function create(params) {
   // Create a new account
   const account = new db.Account({
     ...params,
-    verified: Date.now(), // Automatically verify the email
-    isActive: true // Ensure the account is active by default
+    isVerified: true, // Set isVerified to true
+    verified: Date.now(),
+    isActive: true
   });
 
   // Hash the password
   account.passwordHash = await hash(params.password);
 
-  // Save the account to the database
-  await account.save();
+  try {
+    // Save the account to the database
+    await account.save();
+    
+    // Try to send verification email, but don't fail if it doesn't work
+    try {
+      await sendVerificationEmail(account, params.origin);
+    } catch (emailError) {
+      console.error('Failed to send verification email:', emailError);
+      // Continue with account creation even if email fails
+    }
 
-  return basicDetails(account);
+    return basicDetails(account);
+  } catch (error) {
+    throw `Error creating account: ${error.message}`;
+  }
 }
 
 async function update(id, params) {

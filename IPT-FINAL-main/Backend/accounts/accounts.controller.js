@@ -12,6 +12,7 @@ router.post('/refresh-token', refreshToken);
 router.post('/revoke-token', authorize(), revokeTokenSchema, revokeToken);
 router.post('/register', registerSchema, register);
 router.post('/verify-email', verifyEmailSchema, verifyEmail);
+router.post('/manually-verify', manuallyVerifySchema, manuallyVerify);
 router.post('/forgot-password', forgotPasswordSchema, forgotPassword);
 router.post('/validate-reset-token', validateResetTokenSchema, validateResetToken);
 router.post('/reset-password', resetPasswordSchema, resetPassword);
@@ -238,6 +239,19 @@ function _delete(req, res, next) {
   accountService.delete(req.params.id)
       .then(() => res.json({ message: 'Account deleted successfully' }))
       .catch(next);
+}
+
+function manuallyVerifySchema(req, res, next) {
+  const schema = Joi.object({
+    email: Joi.string().email().required()
+  });
+  validateRequest(req, next, schema);
+}
+
+function manuallyVerify(req, res, next) {
+  accountService.manuallyVerifyAccount(req.body.email)
+    .then(account => res.json({ message: 'Account verified successfully', account }))
+    .catch(next);
 }
 
 // helper functions
