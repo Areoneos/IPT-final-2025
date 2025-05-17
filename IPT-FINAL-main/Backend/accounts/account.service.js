@@ -215,8 +215,8 @@ async function create(params) {
   account.passwordHash = await hash(params.password);
 
   try {
-    // Save the account to the database
-    await account.save();
+  // Save the account to the database
+  await account.save();
     
     // Try to send verification email, but don't fail if it doesn't work
     try {
@@ -226,7 +226,7 @@ async function create(params) {
       // Continue with account creation even if email fails
     }
 
-    return basicDetails(account);
+  return basicDetails(account);
   } catch (error) {
     throw `Error creating account: ${error.message}`;
   }
