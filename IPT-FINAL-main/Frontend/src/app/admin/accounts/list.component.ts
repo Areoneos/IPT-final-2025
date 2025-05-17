@@ -25,16 +25,15 @@ export class ListComponent implements OnInit {
   activateAccount(id: string) {
     this.accountService.activate(id).subscribe({
       next: () => {
-        this.alertService.success('Account activated successfully'); // Show success message
-
-        // Update the account's isActive status in the frontend
+        this.alertService.success('Account activated and verified successfully');
         const account = this.accounts.find(x => x.id === id);
         if (account) {
-          account.isActive = true; // Set the account as active
+          account.isActive = true;
+          account.isVerified = true;
         }
       },
       error: error => {
-        this.alertService.error(error); // Show error message
+        this.alertService.error(error);
       }
     });
   }
@@ -42,16 +41,15 @@ export class ListComponent implements OnInit {
   deactivateAccount(id: string) {
     this.accountService.deactivate(id).subscribe({
       next: () => {
-        this.alertService.success('Account deactivated successfully'); // Show success message
-
-        // Update the account's isActive status in the frontend
+        this.alertService.success('Account deactivated and unverified successfully');
         const account = this.accounts.find(x => x.id === id);
         if (account) {
-          account.isActive = false; // Set the account as inactive
+          account.isActive = false;
+          account.isVerified = false;
         }
       },
       error: error => {
-        this.alertService.error(error); // Show error message
+        this.alertService.error(error);
       }
     });
   }

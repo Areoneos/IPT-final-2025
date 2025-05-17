@@ -20,7 +20,8 @@ export class AddEditComponent implements OnInit {
     userId: '',
     position: '',
     departmentId: '',
-    hireDate: new Date().toISOString().split('T')[0]
+    hireDate: new Date().toISOString().split('T')[0],
+    status: 'Active'  // Set default status
   };
   users: any[] = [];
   departments: any[] = [];
@@ -42,7 +43,10 @@ export class AddEditComponent implements OnInit {
       this.loading = true;
       this.employeeService.getEmployee(this.id).subscribe({
         next: (emp) => {
-          this.employee = emp;
+          this.employee = {
+            ...emp,
+            status: emp.status || 'Active'  // Ensure status is set when editing
+          };
           this.loading = false;
         },
         error: (err) => {
@@ -51,9 +55,11 @@ export class AddEditComponent implements OnInit {
         }
       });
     }
-    // Load users
+    // Load users and filter for active accounts only
     this.userService.getUsers().subscribe({
-      next: (users) => { this.users = users; },
+      next: (users) => { 
+        this.users = users.filter(user => user.isVerified); 
+      },
       error: (err) => { this.errorMessage = 'Failed to load users'; }
     });
     // Load departments
@@ -66,6 +72,12 @@ export class AddEditComponent implements OnInit {
   save() {
     this.errorMessage = '';
     this.loading = true;
+    
+    // Ensure status is properly set before saving
+    if (!this.employee.status) {
+      this.employee.status = 'Active';
+    }
+
     if (this.id) {
       this.employeeService.updateEmployee(this.id, this.employee).subscribe({
         next: () => {
