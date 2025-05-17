@@ -30,12 +30,21 @@ async function initialize() {
         db.RefreshToken = require('../accounts/refresh-token.model.js')(sequelize);
         db.Employee = require('../employees/employee.model')(sequelize, Sequelize);
         db.Department = require('../departments/department.model')(sequelize, Sequelize);
+        db.Request = require('../requests/request.model')(sequelize, Sequelize);
+        db.RequestItem = require('../requests/request-item.model')(sequelize, Sequelize);
 
         // Define relationships
         db.Account.hasMany(db.RefreshToken, { onDelete: 'CASCADE' });
         db.RefreshToken.belongsTo(db.Account);
         db.Employee.belongsTo(db.Account, { foreignKey: 'userId', as: 'user' });
         db.Employee.belongsTo(db.Department, { foreignKey: 'departmentId', as: 'department' });
+        
+        // Initialize model associations
+        Object.keys(db).forEach(modelName => {
+            if (db[modelName].associate) {
+                db[modelName].associate(db);
+            }
+        });
 
         // Sync models
         await sequelize.sync({ alter: true });

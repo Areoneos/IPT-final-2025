@@ -178,7 +178,15 @@ async function activate(id) {
   console.log(`Activating account with ID: ${id}`); // Debugging
   const account = await getAccount(id);
   console.log('Account before activation:', account); // Debugging
+  
+  // Set all verification and activation flags
   account.isActive = true;
+  account.verified = Date.now();
+  account.passwordReset = Date.now();
+  account.verificationToken = null;
+  account.resetToken = null;
+  account.resetTokenExpires = null;
+  
   await account.save();
   console.log('Account after activation:', account); // Debugging
 }
@@ -187,7 +195,15 @@ async function deactivate(id) {
   console.log(`Deactivating account with ID: ${id}`); // Debugging
   const account = await getAccount(id);
   console.log('Account before deactivation:', account); // Debugging
+  
+  // Clear all verification and activation flags
   account.isActive = false;
+  account.verified = null;
+  account.passwordReset = null;
+  account.verificationToken = null;
+  account.resetToken = null;
+  account.resetTokenExpires = null;
+  
   await account.save();
   console.log('Account after deactivation:', account); // Debugging
 }
@@ -215,8 +231,8 @@ async function create(params) {
   account.passwordHash = await hash(params.password);
 
   try {
-    // Save the account to the database
-    await account.save();
+  // Save the account to the database
+  await account.save();
     
     // Try to send verification email, but don't fail if it doesn't work
     try {
@@ -226,7 +242,7 @@ async function create(params) {
       // Continue with account creation even if email fails
     }
 
-    return basicDetails(account);
+  return basicDetails(account);
   } catch (error) {
     throw `Error creating account: ${error.message}`;
   }

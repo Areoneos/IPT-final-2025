@@ -26,5 +26,16 @@
       <label class="form-label">Hire Date</label>
       <input type="date" class="form-control" [(ngModel)]="employee.hireDate">
     </div>
+    <div class="mb-3">
+      <label class="form-label">Status</label>
+      <select class="form-select" [(ngModel)]="employee.Status">
+        <option>Active</option>
+        <option>InActive</option>
+      </select>
+    </div>
+    <div class="text-center">
+        <button class="btn btn-primary me-2" (click)="save()">Save</button>
+        <button class="btn btn-secondary" (click)="cancel()">Cancel</button>
+    </div>
   </div>
 </div>

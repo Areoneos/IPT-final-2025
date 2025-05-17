@@ -1,53 +1,80 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { RequestService } from './request.service';
 import { AccountService } from '../_services/account.service';
-import { RequestService } from '../_services/request.service';
+import { User } from '../_models/user';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
+type Employee = {
+  id: string;
+  employeeId: string;
+  user: User;
+};
+
 @Component({
-  selector: 'app-request-add-edit',
+  selector: 'app-add-edit',
   templateUrl: './add-edit.component.html',
   standalone: true,
-  imports: [FormsModule, CommonModule, RouterModule]
+  imports: [CommonModule, FormsModule, RouterModule]
 })
 export class AddEditComponent implements OnInit {
-  id?: string;
-  loading = false;
-  errorMessage = '';
+  id: string | undefined;
   request: any = {
     type: '',
     description: '',
-    status: 'Pending',
-    employeeId: '',
     requestItems: []
   };
+  loading = false;
+  errorMessage = '';
+  employees: Employee[] = [];
 
   constructor(
-    private router: Router,
     private route: ActivatedRoute,
+    private router: Router,
     private requestService: RequestService,
-    private accountService: AccountService
-  ) {}
+    public accountService: AccountService
+  ) { }
 
   ngOnInit() {
     this.id = this.route.snapshot.params['id'];
-    this.request.employeeId = this.accountService.accountValue?.id;
     
-    if (this.id) {
-      this.loading = true;
-      this.requestService.getById(this.id)
-        .subscribe({
-          next: (data) => {
-            this.request = data;
-            this.loading = false;
-          },
-          error: (error) => {
-            this.errorMessage = error;
-            this.loading = false;
-          }
-        });
+    if (this.accountService.accountValue?.role === 'Admin') {
+      this.loadEmployees();
     }
+
+    if (this.id) {
+      this.loadRequest();
+    }
+  }
+
+  loadEmployees() {
+    this.requestService.getEmployees().subscribe({
+      next: (employees: Employee[]) => {
+        this.employees = employees;
+      },
+      error: (error: any) => {
+        this.errorMessage = 'Error loading employees';
+        console.error('Error loading employees:', error);
+      }
+    });
+  }
+
+  loadRequest() {
+    if (!this.id) return;
+    
+    this.loading = true;
+    this.requestService.getById(this.id).subscribe({
+      next: (request) => {
+        this.request = request;
+        this.loading = false;
+      },
+      error: (error: any) => {
+        this.errorMessage = 'Error loading request';
+        this.loading = false;
+        console.error('Error loading request:', error);
+      }
+    });
   }
 
   addItem() {
@@ -64,63 +91,65 @@ export class AddEditComponent implements OnInit {
   save() {
     this.errorMessage = '';
     
-    // Validate request
     if (!this.request.type) {
-      this.errorMessage = 'Type is required';
+      this.errorMessage = 'Please select a request type';
       return;
     }
+
     if (!this.request.description) {
-      this.errorMessage = 'Description is required';
+      this.errorMessage = 'Please enter a description';
       return;
     }
-    if (!this.request.requestItems || this.request.requestItems.length === 0) {
-      this.errorMessage = 'At least one item is required';
+
+    if (this.accountService.accountValue?.role === 'Admin' && !this.request.employeeId) {
+      this.errorMessage = 'Please select an employee';
       return;
     }
-    
-    // Validate items
+
+    if (this.request.requestItems.length === 0) {
+      this.errorMessage = 'Please add at least one item';
+      return;
+    }
+
     for (const item of this.request.requestItems) {
       if (!item.name) {
-        this.errorMessage = 'Item name is required';
+        this.errorMessage = 'Please enter a name for all items';
         return;
       }
       if (!item.quantity || item.quantity < 1) {
-        this.errorMessage = 'Item quantity must be at least 1';
+        this.errorMessage = 'Please enter a valid quantity for all items';
         return;
       }
     }
 
     this.loading = true;
-    console.log('Saving request:', this.request);
 
     if (this.id) {
-      this.requestService.update(this.id, this.request)
-        .subscribe({
-          next: () => {
-            this.router.navigate(['/admin/requests']);
-          },
-          error: (error) => {
-            console.error('Update error:', error);
-            this.errorMessage = error;
-            this.loading = false;
-          }
-        });
+      this.requestService.update(this.id, this.request).subscribe({
+        next: () => {
+          this.router.navigate(['/requests']);
+        },
+        error: (error: any) => {
+          this.errorMessage = 'Error updating request';
+          this.loading = false;
+          console.error('Error updating request:', error);
+        }
+      });
     } else {
-      this.requestService.create(this.request)
-        .subscribe({
-          next: () => {
-            this.router.navigate(['/admin/requests']);
-          },
-          error: (error) => {
-            console.error('Save error:', error);
-            this.errorMessage = error;
-            this.loading = false;
-          }
-        });
+      this.requestService.create(this.request).subscribe({
+        next: () => {
+          this.router.navigate(['/requests']);
+        },
+        error: (error: any) => {
+          this.errorMessage = 'Error creating request';
+          this.loading = false;
+          console.error('Error creating request:', error);
+        }
+      });
     }
   }
 
   cancel() {
-    this.router.navigate(['/admin/requests']);
+    this.router.navigate(['/requests']);
   }
 } 

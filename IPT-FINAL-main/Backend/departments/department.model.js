@@ -3,11 +3,17 @@ module.exports = (sequelize, DataTypes) => {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true
+      unique: true,
+      validate: {
+        len: [3, 100]
+      }
     },
     description: {
-      type: DataTypes.STRING,
-      allowNull: true
+      type: DataTypes.TEXT,
+      allowNull: false,
+      validate: {
+        len: [10, 1000]
+      }
     }
   });
 

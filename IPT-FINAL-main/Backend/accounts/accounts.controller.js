@@ -251,7 +251,7 @@ function manuallyVerifySchema(req, res, next) {
 function manuallyVerify(req, res, next) {
   accountService.manuallyVerifyAccount(req.body.email)
     .then(account => res.json({ message: 'Account verified successfully', account }))
-    .catch(next);
+      .catch(next);
 }
 
 // helper functions
