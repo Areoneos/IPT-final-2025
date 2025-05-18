@@ -38,8 +38,17 @@ app.use('/api-docs', require('_helpers/swagger'));
 
 // Health check route
 app.get('/health', (req, res) => {
-  res.status(200).json({ message: 'API is running', status: 'healthy' });
+  res.status(200).json({ 
+    message: 'API is running', 
+    status: 'healthy',
+    environment: process.env.NODE_ENV,
+    database: {
+      host: process.env.DB_HOST,
+      database: process.env.DB_NAME
+    }
+  });
 });
+
 app.get('/', (req, res) => {
     res.send('Server is running!');
 });
@@ -49,4 +58,9 @@ app.use(errorHandler);
 
 // Start server
 const port = process.env.PORT || 4000;
-app.listen(port, () => console.log(`Server listening on port ${port}`));
+app.listen(port, () => {
+  console.log(`Server listening on port ${port}`);
+  console.log(`Environment: ${process.env.NODE_ENV}`);
+  console.log(`Database: ${process.env.DB_HOST}`);
+  console.log(`CORS Origins: ${process.env.CORS_ORIGINS}`);
+});

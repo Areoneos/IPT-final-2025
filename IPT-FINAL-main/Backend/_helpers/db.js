@@ -8,9 +8,9 @@ initialize();
 
 async function initialize() {
     const host = process.env.DB_HOST;
-    const port = process.env.DB_PORT;
+    const port = process.env.DB_PORT || 3306;
     const user = process.env.DB_USER;
-    const password = process.env.DB_PASS || null; // Handle empty password
+    const password = process.env.DB_PASS;
     const database = process.env.DB_NAME;
 
     try {
@@ -21,8 +21,15 @@ async function initialize() {
         // Connect to DB
         const sequelize = new Sequelize(database, user, password, {
             host,
+            port,
             dialect: 'mysql',
-            logging: false
+            logging: process.env.NODE_ENV === 'development' ? console.log : false,
+            pool: {
+                max: 5,
+                min: 0,
+                acquire: 30000,
+                idle: 10000
+            }
         });
 
         // Initialize models
@@ -47,10 +54,11 @@ async function initialize() {
         });
 
         // Sync models
-        await sequelize.sync({ alter: true });
+        await sequelize.sync({ alter: process.env.NODE_ENV === 'development' });
 
         console.log('Database connected successfully');
     } catch (error) {
         console.error('Database connection failed:', error.message);
+        throw error;
     }
 }

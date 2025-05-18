@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: ipt-final-backend
+    env: node
+    rootDir: Backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_HOST
+        value: 153.92.15.31
+      - key: DB_USER
+        value: u875409848_caballes
+      - key: DB_PASS
+        value: 9T2Z5$3UKkgSYzE
+      - key: DB_NAME
+        value: u875409848_caballes
+      - key: CORS_ORIGINS
+        value: https://ipt-final-frontend.web.app 
