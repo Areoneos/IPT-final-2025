@@ -22,14 +22,20 @@ async function initialize() {
         const sequelize = new Sequelize(database, user, password, {
             host,
             dialect: 'mysql',
-            logging: false
+            logging: false,
+            define: {
+                // Ensure consistent table naming
+                freezeTableName: true,
+                // Use snake_case for column names
+                underscored: true
+            }
         });
 
-        // Initialize models
+        // Initialize models in correct order
         db.Account = require('../accounts/account.model')(sequelize);
         db.RefreshToken = require('../accounts/refresh-token.model.js')(sequelize);
-        db.Employee = require('../employees/employee.model')(sequelize, Sequelize);
         db.Department = require('../departments/department.model')(sequelize, Sequelize);
+        db.Employee = require('../employees/employee.model')(sequelize, Sequelize);
         db.Request = require('../requests/request.model')(sequelize, Sequelize);
         db.RequestItem = require('../requests/request-item.model')(sequelize, Sequelize);
 
@@ -46,13 +52,12 @@ async function initialize() {
             }
         });
 
-        // Sync models with force: false to prevent table recreation
-        await sequelize.sync({ force: false, alter: false });
+        // Drop all tables and recreate them
+        await sequelize.sync({ force: true });
 
         console.log('Database connected successfully');
     } catch (error) {
         console.error('Database connection failed:', error.message);
-        // Add more detailed error logging
         if (error.original) {
             console.error('Original error:', error.original);
         }
