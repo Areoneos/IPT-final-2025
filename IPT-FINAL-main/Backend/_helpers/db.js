@@ -57,18 +57,6 @@ async function initialize() {
             onDelete: 'CASCADE'
         });
         
-        // Request relationships
-        db.Request.belongsTo(db.Employee, {
-            foreignKey: 'employeeId',
-            as: 'employee',
-            onDelete: 'CASCADE'
-        });
-        db.Request.hasMany(db.RequestItem, {
-            foreignKey: 'requestId',
-            as: 'requestItems',
-            onDelete: 'CASCADE'
-        });
-        
         // Initialize model associations
         Object.keys(db).forEach(modelName => {
             if (db[modelName].associate) {
