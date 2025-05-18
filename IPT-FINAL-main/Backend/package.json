@@ -23,5 +23,8 @@
     "sequelize": "^6.37.7",
     "swagger-ui-express": "^5.0.1",
     "yamljs": "^0.3.0"
+  },
+  "scripts": {
+    "start": "node server.js"
   }
 }
