@@ -46,11 +46,15 @@ async function initialize() {
             }
         });
 
-        // Sync models
-        await sequelize.sync({ alter: true });
+        // Sync models with force: false to prevent table recreation
+        await sequelize.sync({ force: false, alter: false });
 
         console.log('Database connected successfully');
     } catch (error) {
         console.error('Database connection failed:', error.message);
+        // Add more detailed error logging
+        if (error.original) {
+            console.error('Original error:', error.original);
+        }
     }
 }
