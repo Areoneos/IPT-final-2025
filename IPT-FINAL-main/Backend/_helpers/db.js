@@ -27,9 +27,7 @@ async function initialize() {
                 // Ensure consistent table naming
                 freezeTableName: true,
                 // Use snake_case for column names
-                underscored: true,
-                // Use the same case for all table names
-                tableName: true
+                underscored: true
             }
         });
 
@@ -41,22 +39,6 @@ async function initialize() {
         db.Request = require('../requests/request.model')(sequelize, Sequelize);
         db.RequestItem = require('../requests/request-item.model')(sequelize, Sequelize);
 
-        // Define relationships
-        db.Account.hasMany(db.RefreshToken, { onDelete: 'CASCADE' });
-        db.RefreshToken.belongsTo(db.Account);
-        
-        // Employee relationships
-        db.Employee.belongsTo(db.Account, { 
-            foreignKey: 'userId', 
-            as: 'user',
-            onDelete: 'CASCADE'
-        });
-        db.Employee.belongsTo(db.Department, { 
-            foreignKey: 'departmentId', 
-            as: 'department',
-            onDelete: 'CASCADE'
-        });
-        
         // Initialize model associations
         Object.keys(db).forEach(modelName => {
             if (db[modelName].associate) {

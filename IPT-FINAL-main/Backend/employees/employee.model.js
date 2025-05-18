@@ -25,7 +25,21 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       defaultValue: 'Active'
     }
+  }, {
+    tableName: 'Employee',
+    underscored: true
   });
+
+  Employee.associate = (models) => {
+    Employee.belongsTo(models.Account, {
+      foreignKey: 'userId',
+      as: 'user'
+    });
+    Employee.belongsTo(models.Department, {
+      foreignKey: 'departmentId',
+      as: 'department'
+    });
+  };
 
   return Employee;
 }; 
