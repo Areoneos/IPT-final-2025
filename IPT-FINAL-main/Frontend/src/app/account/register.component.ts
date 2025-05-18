@@ -1,17 +1,23 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+} from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
+import { MustMatch } from '../_helpers/must-match.validator';
+import { Role } from '../_models/role';
 import { AccountService } from '../_services/account.service';
 import { AlertService } from '../_services/alert.service';
-import { MustMatch } from '../_helpers/must-match.validator';
 
 @Component({ templateUrl: 'register.component.html' })
 export class RegisterComponent implements OnInit {
   form!: UntypedFormGroup;
   loading = false;
   submitted = false;
+  roles = [Role.Admin, Role.User];
 
   constructor(
     private formBuilder: UntypedFormBuilder,
@@ -19,24 +25,30 @@ export class RegisterComponent implements OnInit {
     private router: Router,
     private accountService: AccountService,
     private alertService: AlertService
-  ) { }
+  ) {}
 
   ngOnInit() {
-    this.form = this.formBuilder.group({
-      title: ['', Validators.required],
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required],
-      acceptTerms: [false, Validators.requiredTrue]
-    }, {
-      validator: MustMatch('password', 'confirmPassword')
-    });
+    this.form = this.formBuilder.group(
+      {
+        title: ['', Validators.required],
+        firstName: ['', Validators.required],
+        lastName: ['', Validators.required],
+        email: ['', [Validators.required, Validators.email]],
+        password: ['', [Validators.required, Validators.minLength(6)]],
+        confirmPassword: ['', Validators.required],
+        role: [Role.User, Validators.required],
+        acceptTerms: [false, Validators.requiredTrue],
+      },
+      {
+        validator: MustMatch('password', 'confirmPassword'),
+      }
+    );
   }
 
   // convenience getter for easy access to form fields
-  get f() { return this.form.controls; }
+  get f() {
+    return this.form.controls;
+  }
 
   onSubmit() {
     this.submitted = true;
@@ -50,17 +62,21 @@ export class RegisterComponent implements OnInit {
     }
 
     this.loading = true;
-    this.accountService.register(this.form.value)
+    this.accountService
+      .register(this.form.value)
       .pipe(first())
       .subscribe({
         next: () => {
-          this.alertService.success('Registration successful, please check your email for verification instructions', { keepAfterRouteChange: true });
+          this.alertService.success(
+            'Registration successful, please check your email for verification instructions',
+            { keepAfterRouteChange: true }
+          );
           this.router.navigate(['../login'], { relativeTo: this.route });
         },
-        error: error => {
+        error: (error) => {
           this.alertService.error(error);
           this.loading = false;
-        }
+        },
       });
   }
 }
