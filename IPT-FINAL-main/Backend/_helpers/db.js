@@ -27,7 +27,9 @@ async function initialize() {
                 // Ensure consistent table naming
                 freezeTableName: true,
                 // Use snake_case for column names
-                underscored: true
+                underscored: true,
+                // Use the same case for all table names
+                tableName: true
             }
         });
 
@@ -42,8 +44,30 @@ async function initialize() {
         // Define relationships
         db.Account.hasMany(db.RefreshToken, { onDelete: 'CASCADE' });
         db.RefreshToken.belongsTo(db.Account);
-        db.Employee.belongsTo(db.Account, { foreignKey: 'userId', as: 'user' });
-        db.Employee.belongsTo(db.Department, { foreignKey: 'departmentId', as: 'department' });
+        
+        // Employee relationships
+        db.Employee.belongsTo(db.Account, { 
+            foreignKey: 'userId', 
+            as: 'user',
+            onDelete: 'CASCADE'
+        });
+        db.Employee.belongsTo(db.Department, { 
+            foreignKey: 'departmentId', 
+            as: 'department',
+            onDelete: 'CASCADE'
+        });
+        
+        // Request relationships
+        db.Request.belongsTo(db.Employee, {
+            foreignKey: 'employeeId',
+            as: 'employee',
+            onDelete: 'CASCADE'
+        });
+        db.Request.hasMany(db.RequestItem, {
+            foreignKey: 'requestId',
+            as: 'requestItems',
+            onDelete: 'CASCADE'
+        });
         
         // Initialize model associations
         Object.keys(db).forEach(modelName => {
