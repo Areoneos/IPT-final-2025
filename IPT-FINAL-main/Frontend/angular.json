@@ -3,30 +3,31 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "user-management-system": {
+    "angular-signup-verification-boilerplate": {
       "projectType": "application",
-      "schematics": {},
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:application",
+          "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/user-management-system",
+            "outputPath": "dist/angular-signup-verification-boilerplate",
             "index": "src/index.html",
-            "browser": "src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
+            "main": "src/main.ts",
+            "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
               "src/assets"
             ],
             "styles": [
-              "src/styles.less",
-              "node_modules/bootstrap/dist/css/bootstrap.min.css"
+              "src/styles.scss"
             ],
             "scripts": []
           },
@@ -47,9 +48,12 @@
               "outputHashing": "all"
             },
             "development": {
+              "buildOptimizer": false,
               "optimization": false,
+              "vendorChunk": true,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "namedChunks": true
             }
           },
           "defaultConfiguration": "production"
@@ -58,10 +62,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "user-management-system:build:production"
+              "browserTarget": "angular-signup-verification-boilerplate:build:production"
             },
             "development": {
-              "buildTarget": "user-management-system:build:development"
+              "browserTarget": "angular-signup-verification-boilerplate:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -69,7 +73,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "user-management-system:build"
+            "buildTarget": "angular-signup-verification-boilerplate:build"
           }
         },
         "test": {
@@ -85,7 +89,7 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.less"
+              "src/styles.scss"
             ],
             "scripts": []
           }
