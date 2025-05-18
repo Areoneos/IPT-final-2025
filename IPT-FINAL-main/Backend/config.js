@@ -1,9 +1,9 @@
 module.exports = {
     database: {
-        host: process.env.DB_HOST || 'localhost',
+        host: process.env.DB_HOST || '153.92.15.31',
         port: parseInt(process.env.DB_PORT) || 3306,
-        user: process.env.DB_USER || 'root',
-        password: process.env.DB_PASSWORD || '',
+        user: process.env.DB_USER || 'u875409848_moldez',
+        password: process.env.DB_PASSWORD || 'u875409848_moldez',
         database: process.env.DB_NAME || 'IPT-FINAL-PROJECT'
     },
     secret: process.env.JWT_SECRET || 'terces',
