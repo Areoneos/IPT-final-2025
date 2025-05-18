@@ -27,7 +27,7 @@
               "src/assets"
             ],
             "styles": [
-              "IPT-FINAL-main/Frontend/src/styles.scss"
+              "src/styles.scss"
             ],
             "scripts": []
           },
