@@ -14,12 +14,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     requestId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'Requests',
-        key: 'id'
-      }
+      allowNull: false
     }
+  }, {
+    tableName: 'RequestItem',
+    underscored: true
   });
 
   RequestItem.associate = (models) => {
